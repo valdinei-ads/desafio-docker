@@ -1,0 +1,62 @@
+FROM golang:alpine as builder
+
+# A list of valid GOOS values
+# =====================================
+# aix
+# android
+# darwin
+# dragonfly
+# freebsd
+# hurd
+# illumos
+# js
+# linux
+# nacl
+# netbsd
+# openbsd
+# plan9
+# solaris
+# windows
+# zos
+ENV TARGET_GOOS linux
+
+# A list of valid 32-bit AND 64-bit GOARCH values
+# ================ 32-bit ================
+# 386
+# amd64p32
+# arm
+# armbe
+# mips
+# mipsle
+# mips64p32
+# mips64p32le
+# ppc
+# riscv
+# s390
+# sparc
+# ================ 64-bit ================
+# amd64
+# arm64
+# arm64be
+# ppc64
+# ppc64le
+# mips64
+# mips64le
+# riscv64
+# s390x
+# sparc64
+# wasm
+ENV TARGET_GOARCH 386
+
+WORKDIR /go
+
+COPY ./src/app.go ./src/
+
+RUN GOOS=${TARGET_GOOS} GOARCH=${TARGET_GOARCH} go build -o ./bin/app ./src
+
+# RUN CGO_ENABLED=0 GOOS=${TARGET_OS} GOARCH=${TARGET_ARCH} go build -a -installsuffix cgo -o app .
+
+FROM scratch
+WORKDIR /go/bin
+COPY --from=builder /go/bin/app .
+CMD [ "./app" ]
